@@ -52,4 +52,4 @@ def packet_callback(packet):
             f.write(f'source_ip: {source_ip}, dest_ip: {dest_ip}, source_port: {source_port}, dest_port: {dest_port}, timestamp: {timestamp}, total_length: {total_length}, cache_flag: {cache_flag}, steps_flag: {steps_flag}, type_flag: {type_flag}, status_code: {status_code}, cache_control: {cache_control}, data: {data}\n')
     wrpcap("captured_packets.pcap", packet, append=True)
 
-sniff(prn=packet_callback,iface="lo")
+sniff(prn=packet_callback,iface="br-53ef1ab1052c")

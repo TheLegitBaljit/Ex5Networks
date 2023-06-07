@@ -113,8 +113,9 @@ if __name__ == '__main__':
                 print(f"Request timed out")
             else:
                 delay, ttl = result
-                delay *= 1000
-                print(f"Reply from {dest_addr}: bytes=32 seq={seq} TTL={ttl} time={delay:.3f}ms")
+                if delay is not None:
+                	delay *= 1000
+                print(f"Reply from {dest_addr}: bytes=32 seq={seq} TTL={ttl}")
 
             seq += 1
             time.sleep(1)
