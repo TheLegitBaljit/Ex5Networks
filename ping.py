@@ -103,7 +103,7 @@ def ping(dest_addr, timeout):
 
 if __name__ == '__main__':
     dest_addr = sys.argv[1]
-    timeout = 1
+    timeout = 5
     seq = 1
 
     while True:
