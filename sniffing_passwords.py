@@ -1,55 +1,18 @@
 from scapy.all import *
-from datetime import datetime
 
+# Define a callback function that prints the source and destination IP addresses
+# and the telnet username and password if found in the packet data
 def packet_callback(packet):
-    timestamp = datetime.now()
-    source_port = None  # Initialize as None
-    dest_port = None  # Initialize as None
-    cache_flag = None
-    steps_flag = None
-    type_flag = None
-    status_code = None
-    cache_control = None
-    
-    if ICMP in packet:
-        proto = "ICMP"
-        source_ip = packet[IP].src
-        dest_ip = packet[IP].dst
-        total_length = packet[IP].len
-        
-    elif TCP in packet:
-        proto = "TCP"
-        source_ip = packet[IP].src
-        dest_ip = packet[IP].dst
-        source_port = packet[TCP].sport
-        dest_port = packet[TCP].dport
-        total_length = packet[IP].len
+    # Check if the packet contains IP and TCP layers
+    if packet.haslayer(IP) and packet.haslayer(TCP):
+        # Get the source and destination IP addresses
+        ip_src = packet[IP].src
+        ip_dst = packet[IP].dst
+        # Get the TCP payload (data)
+        data = str(packet[TCP].payload)
+        # Look for specific patterns indicating a login attempt
+        if 'username' in data.lower() or 'password' in data.lower():
+            print(f"[*] Source: {ip_src} -> Destination: {ip_dst}")
+            packet.show()
 
-    elif UDP in packet:
-        proto = "UDP"
-        source_ip = packet[IP].src
-        dest_ip = packet[IP].dst
-        source_port = packet[UDP].sport
-        dest_port = packet[UDP].dport
-        total_length = packet[IP].len
-
-    elif IGMP in packet:
-        proto = "IGMP"
-        source_ip = packet[IP].src
-        dest_ip = packet[IP].dst
-        total_length = packet[IP].len
-
-    else:
-        proto = "RAW"
-        source_ip = packet[IP].src
-        dest_ip = packet[IP].dst
-        total_length = packet[IP].len
-
-
-    data = bytes(packet).hex()  # Converts packet data to hexadecimal
-
-    with open('output.txt', 'a') as f:
-            f.write(f'source_ip: {source_ip}, dest_ip: {dest_ip}, source_port: {source_port}, dest_port: {dest_port}, timestamp: {timestamp}, total_length: {total_length}, cache_flag: {cache_flag}, steps_flag: {steps_flag}, type_flag: {type_flag}, status_code: {status_code}, cache_control: {cache_control}, data: {data}\n')
-    wrpcap("captured_packets.pcap", packet, append=True)
-
-sniff(prn=packet_callback,iface="br-53ef1ab1052c")
+sniff(iface="br-027dd95f64fa", filter="tcp port 23", prn=packet_callback)
